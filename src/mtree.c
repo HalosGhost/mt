@@ -48,3 +48,43 @@ get_merkle_root (
     return rt;
 }
 
+bool
+verify_merkle_path (
+    const unsigned char * rt,
+    const unsigned char * msg,
+    const struct sibling * sibs,
+    size_t sib_count
+) {
+
+    size_t hash_len = strlen(rt) / 2;
+
+    unsigned char * leaf = calloc(hash_len, sizeof(*leaf));
+    get_hash(msg, strlen(msg), leaf, hash_len);
+
+    unsigned char * leafhx = to_hex(leaf, hash_len);
+    free(leaf);
+
+    unsigned char * comb = calloc(hash_len * 4, sizeof(*leaf));
+    for ( size_t i = 0; i < sib_count; ++i ) {
+        if ( sibs[i].dir == left ) {
+            memcpy(comb, sibs[i].digest, hash_len * 2);
+            memcpy(comb + hash_len * 2, leafhx, hash_len * 2);
+        } else {
+            memcpy(comb, leafhx, hash_len * 2);
+            memcpy(comb + hash_len * 2, sibs[i].digest, hash_len * 2);
+        }
+
+        free(leafhx);
+        get_hash(comb, hash_len * 4, leaf, hash_len);
+        leafhx = to_hex(leaf, hash_len);
+    }
+
+    for ( size_t i = 0; i < hash_len * 2; ++i ) {
+        if ( rt[i] != leafhx[i] ) {
+            return 0;
+        }
+    }
+
+    return 1;
+}
+
