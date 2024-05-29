@@ -36,6 +36,16 @@ main (signed argc, char * argv []) {
                     );
                 } break;
 
+            case 'f':
+                if ( optarg ) {
+                    msg_from_file(
+                        &msg_count,
+                        &messages,
+                        &msg_length,
+                        optarg
+                    );
+                } break;
+
             case 'l':
                 if ( optarg ) {
                     sscanf(optarg, "%zu", &leaf_count);

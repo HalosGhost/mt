@@ -21,9 +21,8 @@
 #define FOR_EACH_OPTION(X) \
     X("bytesize", "NUM", "b", "Truncate hashes to NUM bytes (default: 64)") \
     X("from-str", "STR", "s", "Include string STR as a leaf") \
-    X("leaf-count", "NUM", "l", "Include NUM leaves (randomly rolling more if-needed)")
-
-//    X("from-file", "PATH", "f", "Include file at PATH as a leaf")
+    X("leaf-count", "NUM", "l", "Include NUM leaves (randomly rolling more if-needed)") \
+    X("from-file", "PATH", "f", "Include file at PATH as a leaf")
 
 #define DEF_OPT_OPTION_ST(_l, _a, _s, _h) { _l, 1, 0, _s[0] },
 #define OPT_OPTSTR(_l, _a, _s, _h) _s ":"

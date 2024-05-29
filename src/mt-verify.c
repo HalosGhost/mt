@@ -23,6 +23,12 @@ main (signed argc, char * argv []) {
                 }
                 break;
 
+            case 'f':
+                if ( optarg ) {
+                    file2buf(optarg, &msg);
+                }
+                break;
+
             case 'l': {
                 ++sibling_count;
                 siblings = realloc(siblings, sibling_count * sizeof(struct sibling));

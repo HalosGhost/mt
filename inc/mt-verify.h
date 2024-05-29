@@ -21,9 +21,8 @@
     X("root", "HASH", "R", "The root to verify against") \
     X("left", "HASH", "l", "Add HASH as a sibling on the left") \
     X("right", "HASH", "r", "Add HASH as a sibling on the right") \
-    X("from-str", "STR", "s", "Treat STR as the leaf to verify")
-
-//    X("from-file", "PATH", "f", "Treat file at PATH as the leaf to verify")
+    X("from-str", "STR", "s", "Treat STR as the leaf to verify") \
+    X("from-file", "PATH", "f", "Treat file at PATH as the leaf to verify")
 
 #define DEF_OPT_OPTION_ST(_l, _a, _s, _h) { _l, 1, 0, _s[0] },
 #define OPT_OPTSTR(_l, _a, _s, _h) _s ":"

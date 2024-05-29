@@ -28,6 +28,53 @@ msg_from_str (
 }
 
 signed
+msg_from_file (
+    size_t * msg_count,
+    unsigned char *** messages,
+    size_t ** msg_length,
+    const char * path
+) {
+
+    if ( !msg_count ) {
+        return -1;
+    }
+
+    size_t cnt = *msg_count;
+    *msg_count = ++cnt;
+    *messages = realloc(*messages, (sizeof *messages) * cnt);
+    *msg_length = realloc(*msg_length, (sizeof *msg_length) * cnt);
+    signed len = file2buf(path, &((*messages)[cnt - 1]));
+    if ( len > 0 ) {
+        (*msg_length)[cnt - 1] = len;
+    }
+
+    return 0;
+}
+
+signed
+file2buf (const char * path, unsigned char ** buf) {
+
+    if ( !buf ) {
+        return -1;
+    }
+
+    if ( access(path, R_OK) != 0 ) {
+        return -2;
+    }
+
+    FILE * f = fopen(path, "rb");
+    fseek(f, 0, SEEK_END);
+    signed len = ftell(f);
+    rewind(f);
+
+    *buf = calloc(len, (sizeof **buf));
+    fread(*buf, len, 1, f);
+    fclose(f);
+
+    return len;
+}
+
+signed
 random_msg (
     size_t * msg_count,
     unsigned char *** messages,
