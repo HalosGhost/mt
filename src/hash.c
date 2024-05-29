@@ -15,10 +15,6 @@ get_hash (
 
     crypto_blake2b_general(out, bytes, NULL, 0, msg, sz);
 
-    unsigned char * hx = to_hex(out, bytes);
-    fprintf(stderr, "%s\n", hx);
-    free(hx);
-
     return bytes;
 }
 

@@ -31,6 +31,7 @@ get_merkle_root (
             }
 
             tiers[i][j] = to_hex(b, hash_len);
+            fprintf(stderr, "(%zu, %zu) %s\n", i, j, tiers[i][j]);
             free(b);
         }
     }
