@@ -19,12 +19,20 @@ main (signed argc, char * argv []) {
 
             case 's':
                 if ( optarg ) {
+                    if ( msg ) {
+                        fputs("Cannot verify multiple messages at once.\n", stderr);
+                        goto cleanup;
+                    }
                     msg = strdup(optarg);
                 }
                 break;
 
             case 'f':
                 if ( optarg ) {
+                    if ( msg ) {
+                        fputs("Cannot verify multiple messages at once.\n", stderr);
+                        goto cleanup;
+                    }
                     file2buf(optarg, &msg);
                 }
                 break;

@@ -4,7 +4,7 @@ mt-create(1)
 mt-verify - Verify a Merkle Proof
 
 # SYNOPSIS
-*mt-verify* <--root=RT> <--from-str=STR> <sibling [sibling…]>
+*mt-verify* <--root=RT> <message> <sibling [sibling…]>
 
 # DESCRIPTION
 *mt-verify* verifies a Merkle Proof for a Merkle Root built using
@@ -31,7 +31,10 @@ final hash will match the root.
 	Consider HASH to be the Merkle Root. Must be provided.
 
 *-s, --from-str=STR*
-	Treat STR as the leaf to verify. Must be provided.
+	Treat STR as the message to verify. Exactly one message must be provided.
+
+*-f, --from-file=PATH*
+	Treat file at PATH as the message to verify. Exactly one message must be provided.
 
 *-l, --left=HASH*
 	Add HASH as a left sibling (will be ordered *before* the message-ancestor).

@@ -33,6 +33,9 @@ always be balanced (guaranteeing all valid Merkle Paths are of equal length).
 *-s, --from-str=STR*
 	Include STR as a leaf in the tree.
 
+*-f, --from-file=PATH*
+	Include file at PATH as a leaf in the tree.
+
 *-d, --decoy*
 	Randomly-roll a message.
 
