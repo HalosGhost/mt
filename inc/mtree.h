@@ -17,6 +17,7 @@ bool
 verify_merkle_path (
     const unsigned char *,
     const unsigned char *,
+    size_t,
     const unsigned char *[],
     size_t
 );

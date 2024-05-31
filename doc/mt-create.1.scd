@@ -18,7 +18,11 @@ always be balanced (guaranteeing all valid Merkle Paths are of equal length).
 
 *mt-create* sorts leaves by their hashes before calculating each parent node's
 hash; this should have no security reduction, and simplifies the API and proof
-size for *mt-verify*.
+size for *mt-verify*. Additionally, before each parent node's hash is
+calculated, the preimage has a byte appended representing the number of
+descendants the parent node has (`0x00` for leaf nodes). This limits the
+allowable depth of the tree to 255 (maximum of 2^255 leaves), but offers
+second-preimage resistance.
 
 # OPTIONS
 

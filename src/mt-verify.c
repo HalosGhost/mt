@@ -5,6 +5,7 @@ main (signed argc, char * argv []) {
 
     unsigned char * rt = NULL;
     unsigned char * msg = NULL;
+    size_t msg_sz = 0;
     unsigned char ** siblings = NULL;
     size_t sibling_count = 0;
 
@@ -23,7 +24,10 @@ main (signed argc, char * argv []) {
                         fputs("Cannot verify multiple messages at once.\n", stderr);
                         goto cleanup;
                     }
-                    msg = strdup(optarg);
+                    size_t len = strlen(optarg);
+                    msg = calloc(len + 1, sizeof (*msg));
+                    memcpy(msg + 1, optarg, len);
+                    msg_sz = len + 1;
                 }
                 break;
 
@@ -33,7 +37,7 @@ main (signed argc, char * argv []) {
                         fputs("Cannot verify multiple messages at once.\n", stderr);
                         goto cleanup;
                     }
-                    file2buf(optarg, &msg);
+                    msg_sz = file2buf(optarg, &msg);
                 }
                 break;
 
@@ -54,7 +58,7 @@ main (signed argc, char * argv []) {
         goto cleanup;
     }
 
-    if ( verify_merkle_path(rt, msg, (const unsigned char **)siblings, sibling_count) ) {
+    if ( verify_merkle_path(rt, msg, msg_sz, (const unsigned char **)siblings, sibling_count) ) {
         fprintf(stderr, "Proof verified!\n");
     } else {
         fprintf(stderr, "Invalid!\n");

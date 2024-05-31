@@ -14,7 +14,11 @@ While the root and message can be specified in any order, siblings are
 position-relative to one another (the first specified sibling is the lowest
 sibling in the proof, etc.). When calculating the parent node's hash, the
 message's ancestor and sibling are sorted by their hashes first; this avoids
-the caller having to specify an ordering manually.
+the caller having to specify an ordering manually. Additionally, before each
+parent node's hash is calculated, the preimage has a byte appended representing
+the number of descendants the parent node has (`0x00` for leaf nodes). This
+limits the allowable depth of the tree to 255 (maximum of 2^255 leaves), but
+offers second-preimage resistance.
 
 To verify a Merkle Proof, the hash of the message is taken; then, in passed-
 order left-to-right, the hash is iteratively concatenated with the sibling

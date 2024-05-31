@@ -19,9 +19,9 @@ msg_from_str (
         *msg_count = ++cnt;
         *messages = realloc(*messages, (sizeof *messages) * cnt);
         *msg_length = realloc(*msg_length, (sizeof *msg_length) * cnt);
-        (*msg_length)[cnt - 1] = new_len;
-        (*messages)[cnt - 1] = calloc(new_len, (sizeof **messages));
-        memcpy((*messages)[cnt - 1], new_msg, new_len);
+        (*messages)[cnt - 1] = calloc(new_len + 1, (sizeof **messages));
+        memcpy((*messages)[cnt - 1] + 1, new_msg, new_len);
+        (*msg_length)[cnt - 1] = new_len + 1;
     }
 
     return !(*msg_count == old_cnt); // return 1 if message was ingested
@@ -67,11 +67,11 @@ file2buf (const char * path, unsigned char ** buf) {
     signed len = ftell(f);
     rewind(f);
 
-    *buf = calloc(len, (sizeof **buf));
-    fread(*buf, len, 1, f);
+    *buf = calloc(len + 1, (sizeof **buf));
+    fread(*buf + 1, len, 1, f);
     fclose(f);
 
-    return len;
+    return len + 1;
 }
 
 signed
