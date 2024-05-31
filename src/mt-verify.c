@@ -5,7 +5,7 @@ main (signed argc, char * argv []) {
 
     unsigned char * rt = NULL;
     unsigned char * msg = NULL;
-    struct sibling * siblings = NULL;
+    unsigned char ** siblings = NULL;
     size_t sibling_count = 0;
 
     signed oi = 0, c = 0;
@@ -37,18 +37,10 @@ main (signed argc, char * argv []) {
                 }
                 break;
 
-            case 'l': {
+            case 'p': {
                 ++sibling_count;
-                siblings = realloc(siblings, sibling_count * sizeof(struct sibling));
-                siblings[sibling_count - 1].dir = left;
-                siblings[sibling_count - 1].digest = strdup(optarg);
-            } break;
-
-            case 'r': {
-                ++sibling_count;
-                siblings = realloc(siblings, sibling_count * sizeof(struct sibling));
-                siblings[sibling_count - 1].dir = right;
-                siblings[sibling_count - 1].digest = strdup(optarg);
+                siblings = realloc(siblings, sibling_count * sizeof (*siblings));
+                siblings[sibling_count - 1] = strdup(optarg);
             } break;
 
             default:
@@ -62,7 +54,7 @@ main (signed argc, char * argv []) {
         goto cleanup;
     }
 
-    if ( verify_merkle_path(rt, msg, siblings, sibling_count) ) {
+    if ( verify_merkle_path(rt, msg, (const unsigned char **)siblings, sibling_count) ) {
         fprintf(stderr, "Proof verified!\n");
     } else {
         fprintf(stderr, "Invalid!\n");
@@ -71,7 +63,7 @@ main (signed argc, char * argv []) {
     cleanup:
         if ( siblings ) {
             for ( size_t i = 0; i < sibling_count; ++i ) {
-                free(siblings[i].digest);
+                free(siblings[i]);
             }
 
             free(siblings);

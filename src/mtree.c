@@ -25,8 +25,13 @@ get_merkle_root (
                 get_hash(messages[j], msg_length[j], b, hash_len);
             } else {
                 unsigned char * comb = calloc(hash_len * 4, sizeof(***tiers));
-                memcpy(comb, tiers[i-1][j*2], hash_len * 2);
-                memcpy(comb + hash_len * 2, tiers[i-1][j*2+1], hash_len * 2);
+                if ( strcmp(tiers[i-1][j*2], tiers[i-1][j*2+1]) < 1 ) {
+                    memcpy(comb, tiers[i-1][j*2], hash_len * 2);
+                    memcpy(comb + hash_len * 2, tiers[i-1][j*2+1], hash_len * 2);
+                } else {
+                    memcpy(comb, tiers[i-1][j*2+1], hash_len * 2);
+                    memcpy(comb + hash_len * 2, tiers[i-1][j*2], hash_len * 2);
+                }
                 get_hash(comb, hash_len * 4, b, hash_len);
             }
 
@@ -53,7 +58,7 @@ bool
 verify_merkle_path (
     const unsigned char * rt,
     const unsigned char * msg,
-    const struct sibling * sibs,
+    const unsigned char * sibs [],
     size_t sib_count
 ) {
 
@@ -67,12 +72,12 @@ verify_merkle_path (
 
     unsigned char * comb = calloc(hash_len * 4, sizeof(*leaf));
     for ( size_t i = 0; i < sib_count; ++i ) {
-        if ( sibs[i].dir == left ) {
-            memcpy(comb, sibs[i].digest, hash_len * 2);
+        if ( strcmp(sibs[i], leafhx) < 1 ) {
+            memcpy(comb, sibs[i], hash_len * 2);
             memcpy(comb + hash_len * 2, leafhx, hash_len * 2);
         } else {
             memcpy(comb, leafhx, hash_len * 2);
-            memcpy(comb + hash_len * 2, sibs[i].digest, hash_len * 2);
+            memcpy(comb + hash_len * 2, sibs[i], hash_len * 2);
         }
 
         free(leafhx);

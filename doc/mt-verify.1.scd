@@ -12,15 +12,13 @@ mt-verify - Verify a Merkle Proof
 
 While the root and message can be specified in any order, siblings are
 position-relative to one another (the first specified sibling is the lowest
-sibling in the proof, etc.). Siblings are specified as either being to 
-the `left` or the `right`. The direction of a sibling declares whether or not
-the sibling branch is to the left or right of the message ancestor's along the
-path to the root.
+sibling in the proof, etc.). When calculating the parent node's hash, the
+message's ancestor and sibling are sorted by their hashes first; this avoids
+the caller having to specify an ordering manually.
 
 To verify a Merkle Proof, the hash of the message is taken; then, in passed-
 order left-to-right, the hash is iteratively concatenated with the sibling
-(ordered as-specified by the sibling) and hashed. If the path was valid, the
-final hash will match the root.
+and hashed. If the path was valid, the final hash will match the root.
 
 # OPTIONS
 
@@ -36,17 +34,15 @@ final hash will match the root.
 *-f, --from-file=PATH*
 	Treat file at PATH as the message to verify. Exactly one message must be provided.
 
-*-l, --left=HASH*
-	Add HASH as a left sibling (will be ordered *before* the message-ancestor).
-
-*-r, --right=HASH*
-	Add HASH as a right sibling (will be ordered *after* the message-ancestor).
+*-p, --proof=HASH*
+	Add HASH as a proof segment (sibling), ordered next to the message-
+	ancestor lexicographically.
 
 # EXAMPLES
 
-*mt-verify -b8 -R 5ccb81f5e3243d69 -s 'MTs are cool!' -l 49dc9017001960e0*
-	Validates that 'MTs are cool!' is the second leaf in the 64-bit Merkle Root
-	5ccb81f5e3243d69.
+*mt-verify -R 252a6e84845461b7 -s 'MTs are cool!' -p b4c015a40380d377*
+	Verifies that 'MTs are cool!' is one of two leaves in the 64-bit Merkle Root
+	252a6e84845461b7.
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues

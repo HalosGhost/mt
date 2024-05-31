@@ -78,7 +78,7 @@ $(BLDDIR)/$(DOCDIR)/%: $(DOCDIR)/%.scd
 
 $(OBJDIR)/%.o: $(SRCDIR)/%.c
 	$(MKDIR) $(@D) $(DEPDIR)
-	$(CC) $(CPPFLAGS) $(CFLAGS) -c $< -MMD -MP -MF $(DEPDIR)/$(@F:.o=.d) -o $@
+	$(CC) $(CPPFLAGS) -fPIC $(CFLAGS) -c $< -MMD -MP -MF $(DEPDIR)/$(@F:.o=.d) -o $@
 
 $(LIBNM): $(BLDDIR)/$(LIBNM).so $(BLDDIR)/$(LIBNM).a
 

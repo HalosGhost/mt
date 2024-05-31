@@ -16,6 +16,10 @@ Messages are specified in leaf-order, left-to-right!
 *mt-create* guarantees that the leaf-count is a power-of-two so the tree will
 always be balanced (guaranteeing all valid Merkle Paths are of equal length).
 
+*mt-create* sorts leaves by their hashes before calculating each parent node's
+hash; this should have no security reduction, and simplifies the API and proof
+size for *mt-verify*.
+
 # OPTIONS
 
 *-h, --help*
@@ -42,7 +46,8 @@ always be balanced (guaranteeing all valid Merkle Paths are of equal length).
 # EXAMPLES
 *mt-create -b16 -d -s foo -d -d -s 'bar baz' -d*
 	Creates a 128-bit Merkle Tree with 8 leaves; the second leaf is 'foo' and
-	the fifth is 'bar baz'.
+	the fifth is 'bar baz'. Leaves 1, 3, 4, and 6 are explicitly randomly-rolled
+	decoys; leaves 7 and 8 are implicitly randomly-rolled decoys.
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues

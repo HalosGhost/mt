@@ -19,8 +19,7 @@
 
 #define FOR_EACH_OPTION(X) \
     X("root", "HASH", "R", "The root to verify against") \
-    X("left", "HASH", "l", "Add HASH as a sibling on the left") \
-    X("right", "HASH", "r", "Add HASH as a sibling on the right") \
+    X("proof", "HASH", "p", "Add HASH as a proof segment") \
     X("from-str", "STR", "s", "Treat STR as the leaf to verify") \
     X("from-file", "PATH", "f", "Treat file at PATH as the leaf to verify")
 
