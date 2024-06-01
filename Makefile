@@ -9,15 +9,26 @@ SRCDIR = src
 TSTDIR = tst
 INCDIR = inc
 DOCDIR = doc
-BLDDIR = bld
-OBJDIR = $(BLDDIR)/obj
 DEPDIR = dep
+
+CPPFLAGS = -I$(INCDIR)
+STD = gnu18
+CFLAGS := -Wall -Wextra -Wpedantic -std=$(STD)
+LINKFLAGS = -lm -lb64
 
 CONFIGURED_DEPS = monocypher
 
-CPPFLAGS = -I$(INCDIR)
-CFLAGS = -Og -ggdb3 -Wall -Wextra -Wpedantic -std=gnu18
-LINKFLAGS = -lm
+BLDRT = bld
+CONFIGURATION ?= debug
+ifneq ($(CONFIGURATION), release)
+BLDDIR ?= $(BLDRT)/debug
+CFLAGS += -Og -ggdb3 -U_FORTIFY_SOURCE -fprofile-arcs -ftest-coverage
+CONFIGURED_DEPS += gmp
+else
+BLDDIR ?= $(BLDRT)/release
+CFLAGS += -DNDEBUG -Os -D_FORTIFY_SOURCE=2 -flto -fstack-protector-strong --param=ssp-buffer-size=1 -march=native -mtune=native
+endif
+OBJDIR = $(BLDDIR)/obj
 
 ifneq ($(CONFIGURED_DEPS),)
 CPPFLAGS += $(shell pkg-config --cflags-only-I $(CONFIGURED_DEPS))
@@ -25,7 +36,7 @@ CFLAGS += $(shell pkg-config --cflags-only-other $(CONFIGURED_DEPS))
 LINKFLAGS += $(shell pkg-config --libs $(CONFIGURED_DEPS))
 endif
 
-DATE = $(shell date +'%Y-%b-%d')
+DATE := $(shell date +'%Y-%b-%d')
 
 MKDIR = @mkdir -p --
 RM = rm -rf --
@@ -68,7 +79,7 @@ clean:
 
 $(BLDDIR)/$(TSTDIR)/%: $(TSTDIR)/%.c $(BLDDIR)/$(LIBNM).a
 	$(MKDIR) $(@D) $(DEPDIR)
-	$(CC) $(CPPFLAGS) -fPIC $(CFLAGS) $^ -MMD -MP -MF $(DEPDIR)/$(@F).d -o $@
+	$(CC) $(CPPFLAGS) $(SAMPS) -I$(TSTDIR) -fPIC $(CFLAGS) -o $@ $^ -MMD -MP -MF $(DEPDIR)/$(@F).d $(LINKFLAGS) -lcpucycles
 
 docs: $(DOCS)
 
