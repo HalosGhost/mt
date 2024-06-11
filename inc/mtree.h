@@ -45,6 +45,12 @@ create_mt (size_t, enum msg_type [], char *[], size_t);
 void
 free_mt (struct mtree *);
 
+unsigned char ***
+materialize_tree (const struct mtree *, size_t);
+
+void
+free_materialization (unsigned char ***, size_t);
+
 unsigned char *
 root_from_tree (const struct mtree *, size_t);
 

@@ -63,8 +63,8 @@ free_mt (struct mtree * mt) {
     free(mt);
 }
 
-unsigned char *
-root_from_tree (const struct mtree * mt, size_t sz_override) {
+unsigned char ***
+materialize_tree (const struct mtree * mt, size_t sz_override) {
 
     if ( !mt || sz_override > 64 ) {
         return NULL;
@@ -108,15 +108,38 @@ root_from_tree (const struct mtree * mt, size_t sz_override) {
         }
     }
 
-    memcpy(rt, tiers[n_tiers - 1][0], len);
+    return tiers;
+}
+
+void
+free_materialization (unsigned char *** tiers, size_t leaf_count) {
+
+    size_t n_tiers = log2(leaf_count) + 1;
     for ( size_t i = 0; i < n_tiers; ++i ) {
-        size_t n_nodes = mt->leaf_count >> i;
+        size_t n_nodes = leaf_count >> i;
         for ( size_t j = 0; j < n_nodes; ++j ) {
             free(tiers[i][j]);
         }
         free(tiers[i]);
     }
     free(tiers);
+}
+
+unsigned char *
+root_from_tree (const struct mtree * mt, size_t sz_override) {
+
+    if ( !mt || sz_override > 64 ) {
+        return NULL;
+    }
+
+    size_t len = sz_override ? sz_override : mt->hash_sz;
+    unsigned char * rt = calloc(len, sizeof *rt);
+
+    unsigned char *** tiers = materialize_tree(mt, sz_override);
+
+    size_t n_tiers = log2(mt->leaf_count);
+    memcpy(rt, tiers[n_tiers][0], len);
+    free_materialization(tiers, mt->leaf_count);
 
     return rt;
 }

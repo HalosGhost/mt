@@ -122,3 +122,63 @@ decode_mt (const struct textenc * enc, unsigned char ** rt) {
         }
 }
 
+struct textenc *
+encode_mp (const struct mproof * mp) {
+
+    struct textenc * enc = calloc(1, sizeof(struct textenc));
+    if ( !enc ) { goto cleanup; }
+
+    size_t lbl_sz = 0;
+    FILE * l = open_memstream(&enc->label, &lbl_sz);
+    fprintf(l, "NONSTD %sTACHED B2B%zu MERKLE PROOF",
+        mp->t == of_knowledge ? "DE" : "AT",
+        mp->hash_sz * 8);
+    fclose(l);
+
+    FILE * d = open_memstream((char ** )&enc->data, &enc->sz);
+    uint64_t msg_sz_be = htonll(mp->msg_sz);
+    fwrite(&msg_sz_be, 1, sizeof msg_sz_be, d);
+    fwrite(mp->msg, 1, mp->msg_sz, d);
+    uint64_t element_count_be = htonll(mp->element_count);
+    fwrite(&element_count_be, 1, sizeof element_count_be, d);
+
+    for ( size_t i = 0; i < mp->element_count; ++i ) {
+        fwrite(mp->elements[i], mp->hash_sz, 1, d);
+    }
+    fclose(d);
+
+    cleanup:
+        return enc;
+}
+
+struct mproof *
+decode_mp (const struct textenc * enc) {
+
+    (void )enc;
+}
+
+struct textenc *
+encode_mr (const unsigned char * rt, size_t hash_sz) {
+
+    struct textenc * enc = calloc(1, sizeof(struct textenc));
+    if ( !enc ) { goto cleanup; }
+
+    size_t lbl_sz = 0;
+    FILE * l = open_memstream(&enc->label, &lbl_sz);
+    fprintf(l, "NONSTD B2B%zu MERKLE ROOT", hash_sz * 8);
+    fclose(l);
+
+    FILE * d = open_memstream((char ** )&enc->data, &enc->sz);
+    fwrite(rt, hash_sz, sizeof *rt, d);
+    fclose(d);
+
+    cleanup:
+        return enc;
+}
+
+unsigned char *
+decode_mr (const struct textenc * enc) {
+
+    (void )enc;
+}
+

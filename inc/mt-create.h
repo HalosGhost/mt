@@ -25,7 +25,7 @@
     X("from-str", "STR", "s", "Include string STR as a leaf") \
     X("leaf-count", "NUM", "l", "Include NUM leaves (randomly rolling more if-needed)") \
     X("from-file", "PATH", "f", "Include file at PATH as a leaf") \
-    X("out", "PATH", "o", "Write output to PATH; '-l' is treated as stdout")
+    X("out", "PATH", "o", "Write output to PATH; '-' treated as stdout")
 
 #define DEF_OPT_OPTION_ST(_l, _a, _s, _h) { _l, 1, 0, _s[0] },
 #define OPT_OPTSTR(_l, _a, _s, _h) _s ":"
