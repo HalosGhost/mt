@@ -60,8 +60,8 @@ fw_txtenc (FILE * f, const struct textenc * txt) {
     base64_encodestate ctx;
     base64_init_encodestate(&ctx);
 
-    size_t len = 4 * ceil_div(txt->sz, 3);
-    char * enc = calloc(len + 1, sizeof(*enc));
+    size_t len = 5 * ceil_div(txt->sz, 3);
+    char * enc = calloc(len * 5, sizeof(*enc));
     char * cursor = enc;
     size_t out = base64_encode_block(
         (char * )txt->data,
@@ -72,21 +72,32 @@ fw_txtenc (FILE * f, const struct textenc * txt) {
     cursor += out;
     out += base64_encode_blockend(cursor, &ctx);
 
-    fprintf(f, "-----BEGIN %s-----\n", txt->label);
-    signed o = 0;
+    signed written = fprintf(f, "-----BEGIN %s-----\n", txt->label);
+    signed o = 0; // counter for line-length
     for ( size_t i = 0; i < out; ++i ) {
         if ( enc[i] == '\n' ) {
             continue;
         }
-        o += fwrite(enc + i, sizeof(*enc), 1, f);
+        signed w = fwrite(enc + i, sizeof(*enc), 1, f);
+        o += w;
+        written += w;
         if ( o && (o % 63) == 0 && (i + 1) != out ) {
-            fputc('\n', f);
+            written += fputc('\n', f);
         }
     }
-    fprintf(f, "\n-----END %s-----\n", txt->label);
+    written += fprintf(f, "\n-----END %s-----\n", txt->label);
+    fflush(f);
 
-    free(enc);
+    return written;
+}
 
-    return o;
+void
+free_txtenc (struct textenc * enc) {
+
+    if ( enc ) {
+        //if ( enc->data ) { free(enc->data); }
+        if ( enc->label ) { free(enc->label); }
+        free(enc);
+    }
 }
 

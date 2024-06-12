@@ -22,7 +22,7 @@ BLDRT = bld
 CONFIGURATION ?= debug
 ifneq ($(CONFIGURATION), release)
 BLDDIR ?= $(BLDRT)/debug
-CFLAGS += -Og -ggdb3 -U_FORTIFY_SOURCE -fprofile-arcs -ftest-coverage
+CFLAGS += -Og -ggdb3 -U_FORTIFY_SOURCE -fprofile-arcs #-ftest-coverage
 CONFIGURED_DEPS += gmp
 else
 BLDDIR ?= $(BLDRT)/release

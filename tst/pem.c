@@ -9,7 +9,7 @@ main (void) {
 
     signed res = 1;
 
-    size_t samples = 100;
+    size_t samples = 1000;
     size_t passed = 0;
     size_t failed = 0;
 
@@ -34,7 +34,7 @@ main (void) {
         res = fore_written && back
            && t.sz == back->sz
            && !memcmp(t.data, back->data, t.sz)
-           && !memcmp(t.label, back->label, 7);
+           && !memcmp(t.label, back->label, 8);
 
         if ( res ) {
             ++passed;
@@ -43,6 +43,8 @@ main (void) {
         }
 
         free(fore);
+        free(back->label);
+        free(back->data);
         free(back);
     };
 

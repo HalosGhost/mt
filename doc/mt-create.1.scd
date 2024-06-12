@@ -9,17 +9,21 @@ mt-create - Create a Merkle Tree
 # DESCRIPTION
 *mt-create* builds a binary Merkle Tree from a set of messages.
 
-The messages can be interspersed with (randomly-rolled) decoys, and a required
+The messages can be interspersed with (randomly-rolled) decoys, or a minimum
 number of leaves can be specified to guarantee a given anonymity set size.
-Messages are specified in leaf-order, left-to-right!
 
 *mt-create* guarantees that the leaf-count is a power-of-two so the tree will
 always be balanced (guaranteeing all valid Merkle Paths are of equal length).
 
-*mt-create* sorts leaves by their hashes before calculating each parent node's
-hash; this should have no security reduction, and simplifies the API and proof
-size for *mt-verify*. Additionally, before each parent node's hash is
-calculated, the preimage has a byte appended representing the number of
+If there are manually-specified decoys, *mt-create* will place each message and
+decoy in-specified-order, left-to-right. Otherwise, D decoys will be rolled at
+random, where D = next_pow2(max(message_count, leaf_count)), and each message
+will be next to a decoy leaf.
+
+*mt-create* sorts both child nodes by their hashes before calculating each
+parent node's hash; this should have no security reduction, and simplifies the
+API and proof size for *mt-verify*. Additionally, before each parent node's
+hash is calculated, the preimage has a byte appended representing the number of
 descendants the parent node has (`0x00` for leaf nodes). This limits the
 allowable depth of the tree to 255 (maximum of 2^255 leaves), but offers
 second-preimage resistance.
@@ -46,6 +50,11 @@ second-preimage resistance.
 
 *-d, --decoy*
 	Randomly-roll a message.
+
+*-o, --out=PATH*
+	Write the textual encoding of the tree at PATH. If PATH is the special
+	value *-*, *mt-create* will print the encoding to *stdout*. If not
+	specified, it will write to *<fingerprint>.mt*
 
 # EXAMPLES
 *mt-create -b16 -d -s foo -d -d -s 'bar baz' -d*

@@ -13,6 +13,7 @@
 
 #define FOR_EACH_FLAG(X) \
     X("help", "h", "Print this help and exit") \
+    X("no-harden", "x", "Do not inflate the leaf count for better security") \
     X("decoy", "d", "Add randomly-rolled leaf as a decoy")
 
 #define DEF_FLG_OPTION_ST(_l, _s, _h) { _l, 0, 0, _s[0] },
@@ -22,7 +23,8 @@
     X("bytesize", "NUM", "b", "Truncate hashes to NUM bytes (default: 64)") \
     X("from-str", "STR", "s", "Include string STR as a leaf") \
     X("leaf-count", "NUM", "l", "Include NUM leaves (randomly rolling more if-needed)") \
-    X("from-file", "PATH", "f", "Include file at PATH as a leaf")
+    X("from-file", "PATH", "f", "Include file at PATH as a leaf") \
+    X("out", "PATH", "o", "Write output to PATH; '-l' is treated as stdout")
 
 #define DEF_OPT_OPTION_ST(_l, _a, _s, _h) { _l, 1, 0, _s[0] },
 #define OPT_OPTSTR(_l, _a, _s, _h) _s ":"
