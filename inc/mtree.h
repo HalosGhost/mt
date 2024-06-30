@@ -11,10 +11,19 @@
 #include <hash.h>
 #include <msg.h>
 
+#define FOR_EACH_MSGTYPE(X) \
+    X(from_file) \
+    X(from_str) \
+    X(decoy)
+
+#define DECL_MSGTYPE_ENUM(_n) _n,
 enum msg_type {
-    from_file,
-    from_str,
-    decoy
+    FOR_EACH_MSGTYPE(DECL_MSGTYPE_ENUM)
+};
+
+#define DECL_MSGTYPE_NM(_n) [_n] = #_n,
+static const char * __attribute__((used)) msg_type_name [] = {
+    FOR_EACH_MSGTYPE(DECL_MSGTYPE_NM)
 };
 
 struct mt_msg {
@@ -38,6 +47,9 @@ free_mt (struct mtree *);
 
 struct textenc *
 encode_mt (const struct mtree *);
+
+struct mtree *
+decode_mt (const struct textenc *, unsigned char **);
 
 unsigned char *
 root_from_tree (const struct mtree *, size_t);

@@ -29,8 +29,8 @@ fr_txtenc (FILE * f) {
         blk_len += base64_decode_block(
             line, line_len, (char * )(res->data + blk_len), &ctx
         );
-        free(line);
     }
+    free(line);
 
     if ( !strcmp(opening_tag, closing_tag) ) {
         size_t tag_len = strlen(opening_tag) + 1;
