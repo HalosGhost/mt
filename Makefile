@@ -56,7 +56,7 @@ TESTSRC = $(wildcard $(TSTDIR)/*.c)
 TESTS   = $(patsubst $(TSTDIR)%,$(BLDDIR)/$(TSTDIR)%,$(patsubst %.c,%,$(TESTSRC)))
 
 DOCSSRC = $(wildcard $(DOCDIR)/*.scd)
-DOCS    = $(patsubst $(DOCDIR)%,$(BLDDIR)/$(DOCDIR)%,$(patsubst %.scd,%,$(DOCSSRC)))
+DOCS    = $(patsubst $(DOCDIR)%,$(BLDRT)/$(DOCDIR)%,$(patsubst %.scd,%,$(DOCSSRC)))
 
 .PHONY: all clean check docs $(LIBNM) mains
 
@@ -83,7 +83,7 @@ $(BLDDIR)/$(TSTDIR)/%: $(TSTDIR)/%.c $(BLDDIR)/$(LIBNM).a
 
 docs: $(DOCS)
 
-$(BLDDIR)/$(DOCDIR)/%: $(DOCDIR)/%.scd
+$(BLDRT)/$(DOCDIR)/%: $(DOCDIR)/%.scd
 	$(MKDIR) $(@D)
 	$(DOCC) < $< > $@
 
