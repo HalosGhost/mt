@@ -45,12 +45,6 @@ create_mt (size_t, enum msg_type [], char *[], size_t);
 void
 free_mt (struct mtree *);
 
-struct textenc *
-encode_mt (const struct mtree *);
-
-struct mtree *
-decode_mt (const struct textenc *, unsigned char **);
-
 unsigned char *
 root_from_tree (const struct mtree *, size_t);
 

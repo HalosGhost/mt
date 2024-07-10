@@ -10,6 +10,7 @@
 #include <hash.h>
 #include <msg.h>
 #include <mtree.h>
+#include <codec.h>
 
 #define FOR_EACH_FLAG(X) \
     X("help", "h", "Print this help and exit")
