@@ -16,7 +16,7 @@ signed
 msg_from_file (size_t *, unsigned char ***, size_t **, const char *);
 
 signed
-file2buf (const char *, unsigned char **);
+file_to_buf (const char *, unsigned char **);
 
 signed
 random_msg (size_t *, unsigned char ***, size_t **, size_t);

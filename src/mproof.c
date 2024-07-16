@@ -27,11 +27,14 @@ proof_from_tree (
             memcpy(p->msg, leaf.data, p->msg_sz);
             break;
 
-        case of_knowledge:
+        case of_knowledge: {
+            unsigned char * buf = calloc(1, leaf.sz + 1);
+            memcpy(buf + 1, leaf.data, leaf.sz);
             p->msg_sz = hash_len;
             p->msg = calloc(1, hash_len);
-            get_hash(leaf.data, leaf.sz, p->msg, hash_len);
-            break;
+            get_hash(buf, leaf.sz + 1, p->msg, hash_len);
+            free(buf);
+        } break;
     }
 
     p->hash_sz = hash_len;
@@ -59,6 +62,56 @@ proof_from_tree (
     return p;
 }
 
+bool
+is_valid_proof (struct mproof * mp) {
+
+    if ( !mp ) { return false; }
+
+    unsigned char * leaf_hash = NULL;
+    switch ( mp->t ) {
+        case of_inclusion: {
+            unsigned char * buf = calloc(1, mp->msg_sz + 1);
+            memcpy(buf + 1, mp->msg, mp->msg_sz);
+            leaf_hash = calloc(1, mp->hash_sz);
+            get_hash(buf, mp->msg_sz + 1, leaf_hash, mp->hash_sz);
+        } break;
+
+        case of_knowledge:
+            leaf_hash = mp->msg;
+            break;
+    }
+
+    unsigned char * intermed_hash = calloc(1, mp->hash_sz);
+    for ( size_t i = 0; i < mp->element_count - 1; ++i ) {
+        unsigned char * intermed_preimage = calloc(
+            mp->hash_sz * 2 + 1,
+            sizeof (*intermed_preimage)
+        );
+        unsigned char * cptr = intermed_preimage;
+        unsigned char height = i + 1;
+        memcpy(cptr, &height, 1);
+        cptr++;
+        unsigned char * ancestral_hash = height == 1 ? leaf_hash : intermed_hash;
+        if ( memcmp(ancestral_hash, mp->elements[i], mp->hash_sz) < 1 ) {
+            memcpy(cptr, ancestral_hash, mp->hash_sz);
+            cptr += mp->hash_sz;
+            memcpy(cptr, mp->elements[i], mp->hash_sz);
+        } else {
+            memcpy(cptr, mp->elements[i], mp->hash_sz);
+            cptr += mp->hash_sz;
+            memcpy(cptr, ancestral_hash, mp->hash_sz);
+        }
+        get_hash(intermed_preimage, mp->hash_sz * 2 + 1, intermed_hash, mp->hash_sz);
+        free(intermed_preimage);
+    }
+
+    bool valid = !memcmp(intermed_hash, mp->elements[mp->element_count - 1], mp->hash_sz);
+    free(intermed_hash);
+
+    return valid;
+}
+
+// todo: replace free() with crypto_wipe()
 void
 free_proof (struct mproof * mp) {
 

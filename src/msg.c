@@ -43,7 +43,7 @@ msg_from_file (
     *msg_count = ++cnt;
     *messages = realloc(*messages, (sizeof *messages) * cnt);
     *msg_length = realloc(*msg_length, (sizeof *msg_length) * cnt);
-    signed len = file2buf(path, &((*messages)[cnt - 1]));
+    signed len = file_to_buf(path, &((*messages)[cnt - 1]));
     if ( len > 0 ) {
         (*msg_length)[cnt - 1] = len;
     }
@@ -52,7 +52,7 @@ msg_from_file (
 }
 
 signed
-file2buf (const char * path, unsigned char ** buf) {
+file_to_buf (const char * path, unsigned char ** buf) {
 
     if ( !buf ) {
         return -1;
@@ -67,11 +67,11 @@ file2buf (const char * path, unsigned char ** buf) {
     signed len = ftell(f);
     rewind(f);
 
-    *buf = calloc(len + 1, (sizeof **buf));
-    fread(*buf + 1, len, 1, f);
+    *buf = calloc(len, (sizeof **buf));
+    fread(*buf, len, 1, f);
     fclose(f);
 
-    return len + 1;
+    return len;
 }
 
 signed

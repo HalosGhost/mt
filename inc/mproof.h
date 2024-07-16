@@ -23,6 +23,9 @@ struct mproof {
 struct mproof *
 proof_from_tree (const struct mtree *, size_t, size_t, enum proof_type);
 
+bool
+is_valid_proof (struct mproof *);
+
 void
 free_proof (struct mproof *);
 

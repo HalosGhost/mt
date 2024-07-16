@@ -3,85 +3,125 @@
 signed
 main (signed argc, char * argv []) {
 
+    signed status = EXIT_SUCCESS;
+
     unsigned char * rt = NULL;
-    unsigned char * msg = NULL;
-    size_t msg_sz = 0;
-    unsigned char ** siblings = NULL;
-    size_t sibling_count = 0;
+
+    struct mproof * p = NULL;
+    struct textenc * prf_enc = NULL;
+
+    unsigned char * rt_hex = NULL;
+    struct textenc * rt_enc = NULL;
+    char * rt_p = NULL;
+
+    char * out_p = NULL;
+    size_t out_p_len = 0;
 
     signed oi = 0, c = 0;
     while ( (c = getopt_long(argc, argv, optstr, os, &oi)) != -1 ) {
         switch ( c ) {
-            case 'R':
+            case 'r': // read hex
                 if ( optarg ) {
-                    rt = strdup(optarg);
+                    rt_hex = (unsigned char * )strdup(optarg);
                 }
                 break;
 
-            case 's':
+            case 'R': // read textual-encoding
                 if ( optarg ) {
-                    if ( msg ) {
-                        fputs("Cannot verify multiple messages at once.\n", stderr);
-                        goto cleanup;
-                    }
-                    size_t len = strlen(optarg);
-                    msg = calloc(len + 1, sizeof (*msg));
-                    memcpy(msg + 1, optarg, len);
-                    msg_sz = len + 1;
+                    rt_p = strdup(optarg);
                 }
                 break;
 
-            case 'f':
+            case 'o':
                 if ( optarg ) {
-                    if ( msg ) {
-                        fputs("Cannot verify multiple messages at once.\n", stderr);
-                        goto cleanup;
-                    }
-                    msg_sz = file2buf(optarg, &msg);
+                    out_p = strdup(optarg);
+                    out_p_len = strlen(out_p);
                 }
                 break;
-
-            case 'p': {
-                ++sibling_count;
-                siblings = realloc(siblings, sibling_count * sizeof (*siblings));
-                siblings[sibling_count - 1] = strdup(optarg);
-            } break;
 
             default:
+                status = 1;
+                // fallthrough
+            case 'h':
                 verify_usage(argv[0]);
-                break;
+                goto cleanup;
         }
     }
 
-    if ( !rt || !msg || !siblings ) {
-        fputs("A root, message, and at least one sibling must be specified.\n", stderr);
+    if ( optind >= argc ) {
+        fputs("No Merkle Proof provided.\n", stderr);
+        status = 1;
         goto cleanup;
     }
 
-    if ( verify_merkle_path(rt, msg, msg_sz, (const unsigned char **)siblings, sibling_count) ) {
-        fprintf(stderr, "Proof verified!\n");
+    FILE * r = fopen(argv[optind], "r");
+    prf_enc = fr_txtenc(r);
+    fclose(r);
+    if ( !prf_enc ) {
+        fprintf(stderr, "Failed to read textual encoding from %s\n", argv[optind]);
+        status = 1;
+        goto cleanup;
+    }
+
+    p = decode_mp(prf_enc);
+
+    // should we prefer one over the other? verify they match?
+    if ( rt_p ) {
+        FILE * f = fopen(rt_p, "r");
+        rt_enc = fr_txtenc(f);
+        fclose(f);
+        size_t N = 0;
+        rt = decode_mr(rt_enc, &N);
+        if ( N != p->hash_sz ) {
+            fputs("[ERROR]: Roots are of different sizes!\n", stderr);
+            status = 1;
+            goto cleanup;
+        }
+    } else if ( rt_hex ) {
+        rt = from_hex(rt_hex, p->hash_sz * 2);
+    }
+
+    if ( !rt ) {
+        fputs("[WARNING]: No explicit root provided!\n", stderr);
+    } else if ( memcmp(rt, p->elements[p->element_count - 1], p->hash_sz) ) {
+        fputs("[ERROR]: Mismatched root!\n", stderr);
+        status = 1;
+        goto cleanup;
+    }
+
+    if ( is_valid_proof(p) ) {
+        fputs("Proof verified!\n", stderr);
+        if ( out_p ) {
+            if ( p->t != of_inclusion ) {
+                fputs("[WARNING]: Cannot write message to file for knowlege-proofs\n", stderr);
+            } else if ( out_p_len == 1 && !strncmp(out_p, "-", 1) ) {
+                printf("%s", p->msg);
+                fputs("wrote file (-)\n", stderr);
+            } else {
+                FILE * f = fopen(out_p, "w");
+                fprintf(f, "%s", p->msg);
+                fclose(f);
+                fprintf(stderr, "wrote file (%s)\n", out_p);
+            }
+        }
     } else {
-        fprintf(stderr, "Invalid!\n");
+        fprintf(stderr, "Proof Invalid!\n");
+        status = 1;
     }
 
     cleanup:
-        if ( siblings ) {
-            for ( size_t i = 0; i < sibling_count; ++i ) {
-                free(siblings[i]);
-            }
-
-            free(siblings);
-        }
-        if ( msg ) { free(msg); }
         if ( rt ) { free(rt); }
-        return EXIT_SUCCESS;
+        if ( rt_hex ) { free(rt_hex); }
+        if ( p ) { free_proof(p); }
+        if ( prf_enc ) { free_txtenc(prf_enc); }
+        return status;
 }
 
 _Noreturn void
 verify_usage (const char * prog) {
 
     static const char header [] =
-        "Usage: %s [options]\n"
+        "Usage: %s [options] <path/to/proof>\n"
         "%s -- Verify a Merkle Path\n\n"
     ;
 
@@ -103,7 +143,7 @@ verify_usage (const char * prog) {
 
     #define PRINT_FLAG_HELP(_l, _s, _h) do { \
         signed i = fprintf(stderr, "  -%s, --%s", (_s), (_l)); \
-        fprintf(stderr, "%-*s\t%s\n", longest - i, " ", (_h)); \
+        fprintf(stderr, "%-*s  \t%s\n", longest - i, " ", (_h)); \
     } while ( false );
 
     fprintf(stderr, "Flags:\n");
@@ -111,7 +151,7 @@ verify_usage (const char * prog) {
 
     #define PRINT_OPTION_HELP(_l, _a, _s, _h) do { \
         signed i = fprintf(stderr, "  -%s, --%s=<%s>", (_s), (_l), (_a)); \
-        fprintf(stderr, "%-*s\t%s\n", longest - i, " ", (_h)); \
+        fprintf(stderr, "%-*s  \t%s\n", longest - i, " ", (_h)); \
     } while ( false );
 
     fprintf(stderr, "\nOptions:\n");

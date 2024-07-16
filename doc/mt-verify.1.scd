@@ -4,49 +4,40 @@ mt-create(1)
 mt-verify - Verify a Merkle Proof
 
 # SYNOPSIS
-*mt-verify* <--root=RT> <message> <sibling [sibling…]>
+*mt-verify* [options] </path/to/proof>
 
 # DESCRIPTION
-*mt-verify* verifies a Merkle Proof for a Merkle Root built using
-*mt-create(1)*.
+*mt-verify* verifies a Merkle Proof for a given Merkle Root built using
+*mt-create(1)* and *mt-prove(1)*.
 
-While the root and message can be specified in any order, siblings are
-position-relative to one another (the first specified sibling is the lowest
-sibling in the proof, etc.). When calculating the parent node's hash, the
-message's ancestor and sibling are sorted by their hashes first; this avoids
-the caller having to specify an ordering manually. Additionally, before each
-parent node's hash is calculated, the preimage has a byte appended representing
-the number of descendants the parent node has (`0x00` for leaf nodes). This
-limits the allowable depth of the tree to 255 (maximum of 2^255 leaves), but
-offers second-preimage resistance.
-
-To verify a Merkle Proof, the hash of the message is taken; then, in passed-
-order left-to-right, the hash is iteratively concatenated with the sibling
-and hashed. If the path was valid, the final hash will match the root.
+Both detached (proofs of knowledge) and attached (proofs of inclusion)
+are supported. All proofs must include the associated root, enabling
+proofs to be verified even if a root is not explicitly passed via
+*-r*/*-R*. Because, for some cases, this should be relied upon only
+as a sanity and integrity check, if a Root is not explicitly provided,
+a warning will be printed.
 
 # OPTIONS
 
 *-h, --help*
 	Print a short help message and exit.
 
-*-R, --root=HASH*
-	Consider HASH to be the Merkle Root. Must be provided.
+*-r, --root-hex*=_PATH_
+	Read the Merkle Root from the textual encoding at _PATH_.
 
-*-s, --from-str=STR*
-	Treat STR as the message to verify. Exactly one message must be provided.
+*-R, --root-pem*=_HEX_
+	Read the Merkle Root from the hexadecimal-encoded string, _HEX_.
 
-*-f, --from-file=PATH*
-	Treat file at PATH as the message to verify. Exactly one message must be provided.
-
-*-p, --proof=HASH*
-	Add HASH as a proof segment (sibling), ordered next to the message-
-	ancestor lexicographically.
+*-o, --out*=_PATH_
+	If the proof demonstrates inclusion, and verifies correctly,
+	write the plaintext message to _PATH_. If _PATH_ is the special
+	value *-*, *mt-verify* will print the message to *stdout*.
 
 # EXAMPLES
 
-*mt-verify -R 252a6e84845461b7 -s 'MTs are cool!' -p b4c015a40380d377*
-	Verifies that 'MTs are cool!' is one of two leaves in the 64-bit Merkle Root
-	252a6e84845461b7.
+*mt-verify -r 252a6e84845461b7 -s 'MTs are cool!' -p b4c015a40380d377*
+	Verifies that 'MTs are cool!' is one of two leaves in the 64-bit
+	Merkle Root 252a6e84845461b7.
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues

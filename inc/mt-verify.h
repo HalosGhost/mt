@@ -10,6 +10,8 @@
 #include <hash.h>
 #include <msg.h>
 #include <mtree.h>
+#include <mproof.h>
+#include <codec.h>
 
 #define FOR_EACH_FLAG(X) \
     X("help", "h", "Print this help and exit")
@@ -18,10 +20,9 @@
 #define FLG_OPTSTR(_l, _s, _h) _s
 
 #define FOR_EACH_OPTION(X) \
-    X("root", "HASH", "R", "The root to verify against") \
-    X("proof", "HASH", "p", "Add HASH as a proof segment") \
-    X("from-str", "STR", "s", "Treat STR as the leaf to verify") \
-    X("from-file", "PATH", "f", "Treat file at PATH as the leaf to verify")
+    X("root-hex", "STR", "r", "Verify against the hex-encoded root in STR") \
+    X("root-pem", "PATH", "R", "Verify against The textual encoded root at PATH") \
+    X("out", "PATH", "o", "Write verified file to PATH; '-' treated as stdout)")
 
 #define DEF_OPT_OPTION_ST(_l, _a, _s, _h) { _l, 1, 0, _s[0] },
 #define OPT_OPTSTR(_l, _a, _s, _h) _s ":"

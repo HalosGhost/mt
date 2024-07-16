@@ -16,7 +16,7 @@ struct textenc *
 encode_mr (const unsigned char *, size_t);
 
 unsigned char *
-decode_mr (const struct textenc *);
+decode_mr (const struct textenc *, size_t *);
 
 #include <mproof.h>
 

@@ -20,7 +20,7 @@ create_mt (
         mt->leaves[i].t = msg_src[i];
         switch ( msg_src[i] ) {
             case from_file: {
-                signed sz = file2buf(msg_loc[i], &mt->leaves[i].data);
+                signed sz = file_to_buf(msg_loc[i], &mt->leaves[i].data);
                 if ( sz < 0 ) {
                     // fail out
                 }
@@ -46,6 +46,7 @@ create_mt (
     return mt;
 }
 
+// todo: replace free() with crypto_wipe()
 void
 free_mt (struct mtree * mt) {
 
@@ -92,6 +93,7 @@ materialize_tree (const struct mtree * mt, size_t sz_override) {
                 unsigned char height = i;
                 memcpy(cptr, &height, 1);
                 cptr++;
+                // todo: replace memcmp() with with crypto_verifyN()
                 if ( memcmp(tiers[i-1][j*2], tiers[i-1][j*2+1], len) < 1 ) {
                     memcpy(cptr, tiers[i-1][j*2], len);
                     cptr += len;
