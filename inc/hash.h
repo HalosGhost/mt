@@ -8,7 +8,4 @@
 signed
 get_hash (const unsigned char *, size_t, unsigned char *, size_t);
 
-unsigned char *
-to_hex (const unsigned char *, size_t);
-
 #endif

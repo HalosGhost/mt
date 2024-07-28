@@ -13,6 +13,7 @@
 #include <monocypher.h>
 
 #include <pem.h>
+#include <hex.h>
 
 #define min(_l, _r) (((_l) < (_r)) ? (_l) : (_r))
 #define max(_l, _r) (((_l) > (_r)) ? (_l) : (_r))
