@@ -10,15 +10,6 @@
 #include <common.h>
 
 signed
-msg_from_str (size_t *, unsigned char ***, size_t **, char *, size_t);
-
-signed
-msg_from_file (size_t *, unsigned char ***, size_t **, const char *);
-
-signed
 file_to_buf (const char *, unsigned char **);
-
-signed
-random_msg (size_t *, unsigned char ***, size_t **, size_t);
 
 #endif

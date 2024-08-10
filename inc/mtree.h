@@ -54,16 +54,4 @@ free_materialization (unsigned char ***, size_t);
 unsigned char *
 root_from_tree (const struct mtree *, size_t);
 
-unsigned char *
-get_merkle_root (size_t, unsigned char *[], size_t [], size_t);
-
-bool
-verify_merkle_path (
-    const unsigned char *,
-    const unsigned char *,
-    size_t,
-    const unsigned char *[],
-    size_t
-);
-
 #endif
