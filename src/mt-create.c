@@ -5,12 +5,15 @@ main (signed argc, char * argv []) {
 
     size_t hash_len = 64;
     char * out_p = NULL;
+    size_t out_p_len = 0;
+    size_t path_len = 0;
     char ** msg_loc = NULL;
     enum msg_type * msg_src = NULL;
     size_t msg_count = 0;
     size_t leaf_count = 0;
     struct mtree * mt = NULL;
     bool avoid_ppi_leakage = true;
+    bool p_is_stdout = false;
 
     struct textenc * enc = NULL;
 
@@ -55,6 +58,7 @@ main (signed argc, char * argv []) {
             case 'o':
                 if ( optarg ) {
                     out_p = strdup(optarg);
+                    out_p_len = strlen(out_p);
                 } break;
 
             case 'l':
@@ -128,7 +132,8 @@ main (signed argc, char * argv []) {
     char * path = NULL;
 
     enc = encode_mt(mt);
-    if ( out_p && strlen(out_p) == 1 && strncmp(out_p, "-", 1) == 0 ) {
+    p_is_stdout = out_p && out_p_len == 1 && strncmp(out_p, "-", 1) == 0;
+    if ( p_is_stdout ) {
         char * buf = NULL;
         size_t buf_sz = 0;
         FILE * w = open_memstream(&buf, &buf_sz);
@@ -141,6 +146,7 @@ main (signed argc, char * argv []) {
         }
         path = "-";
 
+        crypto_wipe(buf, buf_sz);
         free(buf);
     } else if ( out_p ) {
         FILE * f = fopen(out_p, "w");
@@ -148,8 +154,7 @@ main (signed argc, char * argv []) {
         path = out_p;
         fclose(f);
     } else {
-        size_t p_sz = 0;
-        FILE * p = open_memstream(&path, &p_sz);
+        FILE * p = open_memstream(&path, &path_len);
         fprintf(p, "%.8s.mt", hx);
         fclose(p);
         FILE * f = fopen(path, "w");
@@ -164,12 +169,19 @@ main (signed argc, char * argv []) {
     }
     fflush(stderr);
 
-    if ( !out_p ) {
+    if ( path_len ) {
+        crypto_wipe(path, path_len);
         free(path);
     }
+    if ( out_p ) {
+        crypto_wipe(out_p, out_p_len);
+        free(out_p);
+    }
 
-    free(hx);
+    crypto_wipe(rt, mt->hash_sz);
     free(rt);
+    crypto_wipe(hx, mt->hash_sz * 2);
+    free(hx);
 
     cleanup:
         if ( enc ) {
@@ -177,9 +189,15 @@ main (signed argc, char * argv []) {
         }
         if ( leaf_count ) {
             for ( size_t i = 0; i < msg_count; ++i ) {
-                if ( msg_loc[i] ) { free(msg_loc[i]); }
+                if ( msg_loc[i] ) {
+                    crypto_wipe(msg_loc[i], strlen(msg_loc[i]));
+                    free(msg_loc[i]);
+                }
             }
-            if ( msg_src ) { free(msg_src); }
+            if ( msg_src ) {
+                crypto_wipe(msg_src, msg_count * sizeof *(msg_src));
+                free(msg_src);
+            }
         }
         if ( mt ) { free_mt(mt); }
         return EXIT_SUCCESS;

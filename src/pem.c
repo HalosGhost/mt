@@ -30,6 +30,7 @@ fr_txtenc (FILE * f) {
             line, line_len, (char * )(res->data + blk_len), &ctx
         );
     }
+    crypto_wipe(line, line_len);
     free(line);
 
     if ( !strcmp(opening_tag, closing_tag) ) {
@@ -37,7 +38,9 @@ fr_txtenc (FILE * f) {
         res->label = calloc(tag_len, sizeof(*res->label));
         memcpy(res->label, opening_tag, tag_len);
     } else {
+        crypto_wipe(res->data, blk_cap * sizeof (*res->data));
         free(res->data);
+        crypto_wipe(res, sizeof (*res));
         free(res);
         return NULL;
     }
@@ -95,8 +98,12 @@ void
 free_txtenc (struct textenc * enc) {
 
     if ( enc ) {
-        //if ( enc->data ) { free(enc->data); }
-        if ( enc->label ) { free(enc->label); }
+        if ( enc->data ) { crypto_wipe(enc->data, enc->sz); free(enc->data); }
+        if ( enc->label ) {
+            crypto_wipe(enc->label, strlen(enc->label));
+            free(enc->label);
+        }
+        crypto_wipe(enc, sizeof (*enc));
         free(enc);
     }
 }

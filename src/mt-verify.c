@@ -110,8 +110,8 @@ main (signed argc, char * argv []) {
     }
 
     cleanup:
-        if ( rt ) { free(rt); }
-        if ( rt_hex ) { free(rt_hex); }
+        if ( rt ) { crypto_wipe(rt, p->hash_sz); free(rt); }
+        if ( rt_hex ) { crypto_wipe(rt_hex, p->hash_sz * 2); free(rt_hex); }
         if ( p ) { free_proof(p); }
         if ( prf_enc ) { free_txtenc(prf_enc); }
         return status;

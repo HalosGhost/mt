@@ -39,6 +39,7 @@ encode_mt (const struct mtree * mt) {
     fclose(d);
 
     cleanup:
+        crypto_wipe(rt, mt->hash_sz);
         free(rt);
         return enc;
 }
@@ -194,13 +195,7 @@ decode_mp (const struct textenc * enc) {
         if ( r ) { fclose(r); }
         if ( status == EXIT_FAILURE ) {
             if ( mp ) {
-                for ( size_t j = 0; j < i; ++j ) {
-                    free(mp->elements[j]);
-                }
-
-                free(mp->elements);
-                if ( mp->msg_sz && mp->msg ) { free(mp->msg); }
-                free(mp);
+                free_proof(mp);
             }
 
             return NULL;
@@ -246,7 +241,7 @@ decode_mr (const struct textenc * enc, size_t * sz) {
     cleanup:
         if ( r ) { fclose(r); }
         if ( status == EXIT_FAILURE ) {
-            if ( rt ) { free(rt); }
+            if ( rt ) { crypto_wipe(rt, enc->sz); free(rt); }
             return NULL;
         } else {
             if ( sz ) {

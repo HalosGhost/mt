@@ -49,7 +49,7 @@ unsigned char ***
 materialize_tree (const struct mtree *, size_t);
 
 void
-free_materialization (unsigned char ***, size_t);
+free_materialization (unsigned char ***, size_t, size_t);
 
 unsigned char *
 root_from_tree (const struct mtree *, size_t);

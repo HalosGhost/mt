@@ -33,6 +33,7 @@ proof_from_tree (
             p->msg_sz = hash_len;
             p->msg = calloc(1, hash_len);
             get_hash(buf, leaf.sz + 1, p->msg, hash_len);
+            crypto_wipe(buf, leaf.sz + 1);
             free(buf);
         } break;
     }
@@ -58,7 +59,7 @@ proof_from_tree (
    );
    ++(p->element_count);
 
-    if ( tiers ) { free_materialization(tiers, mt->leaf_count); }
+    if ( tiers ) { free_materialization(tiers, mt->leaf_count, hash_len); }
     return p;
 }
 
@@ -102,24 +103,28 @@ is_valid_proof (struct mproof * mp) {
             memcpy(cptr, ancestral_hash, mp->hash_sz);
         }
         get_hash(intermed_preimage, mp->hash_sz * 2 + 1, intermed_hash, mp->hash_sz);
+        crypto_wipe(intermed_preimage, mp->hash_sz * 2 + 1);
         free(intermed_preimage);
     }
 
     bool valid = !memcmp(intermed_hash, mp->elements[mp->element_count - 1], mp->hash_sz);
+    crypto_wipe(intermed_hash, mp->hash_sz);
     free(intermed_hash);
 
     return valid;
 }
 
-// todo: replace free() with crypto_wipe()
 void
 free_proof (struct mproof * mp) {
 
     if ( !mp ) { return; }
 
     for ( size_t i = 0; i < mp->element_count; ++i ) {
+        crypto_wipe(mp->elements[i], mp->hash_sz);
         free(mp->elements[i]);
     }
+    crypto_wipe(mp->elements, mp->element_count * sizeof (*mp->elements));
     free(mp->elements);
+    crypto_wipe(mp, sizeof *mp);
     free(mp);
 }

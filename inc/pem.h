@@ -14,6 +14,8 @@
 #include <b64/cencode.h>
 #include <b64/cdecode.h>
 
+#include <monocypher.h>
+
 // parbaked RFC7468 structure and codec
 
 struct textenc {

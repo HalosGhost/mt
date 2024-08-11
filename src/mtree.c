@@ -46,7 +46,6 @@ create_mt (
     return mt;
 }
 
-// todo: replace free() with crypto_wipe()
 void
 free_mt (struct mtree * mt) {
 
@@ -54,13 +53,24 @@ free_mt (struct mtree * mt) {
 
     for ( size_t i = 0; i < mt->leaf_count; ++i ) {
         switch ( mt->leaves[i].t ) {
-            case from_file: free(mt->leaves[i].location); // fallthrough
+            case from_file:
+                crypto_wipe(
+                    mt->leaves[i].location,
+                    strlen(mt->leaves[i].location)
+                );
+                free(mt->leaves[i].location);
+                // fallthrough
             case from_str: // fallthrough
-            case decoy: free(mt->leaves[i].data); break;
+            case decoy:
+                crypto_wipe(mt->leaves[i].data, mt->leaves[i].sz);
+                free(mt->leaves[i].data);
+                break;
         }
     }
 
+    crypto_wipe(mt->leaves, mt->leaf_count * sizeof (*mt->leaves));
     free(mt->leaves);
+    crypto_wipe(mt, sizeof (*mt));
     free(mt);
 }
 
@@ -86,6 +96,7 @@ materialize_tree (const struct mtree * mt, size_t sz_override) {
                 unsigned char * buf = calloc(1, mt->leaves[j].sz + 1);
                 memcpy(buf + 1, mt->leaves[j].data, mt->leaves[j].sz);
                 get_hash(buf, mt->leaves[j].sz + 1, b, len);
+                crypto_wipe(buf, mt->leaves[j].sz + 1);
                 free(buf);
             } else {
                 unsigned char * comb = calloc(len * 2 + 1, sizeof(***tiers));
@@ -114,16 +125,19 @@ materialize_tree (const struct mtree * mt, size_t sz_override) {
 }
 
 void
-free_materialization (unsigned char *** tiers, size_t leaf_count) {
+free_materialization (unsigned char *** tiers, size_t leaf_count, size_t sz) {
 
     size_t n_tiers = log2(leaf_count) + 1;
     for ( size_t i = 0; i < n_tiers; ++i ) {
         size_t n_nodes = leaf_count >> i;
         for ( size_t j = 0; j < n_nodes; ++j ) {
+            crypto_wipe(tiers[i][j], sz);
             free(tiers[i][j]);
         }
+        crypto_wipe(tiers[i], n_nodes * sizeof (*tiers[i]));
         free(tiers[i]);
     }
+    crypto_wipe(tiers, n_tiers * sizeof (*tiers));
     free(tiers);
 }
 
@@ -137,11 +151,11 @@ root_from_tree (const struct mtree * mt, size_t sz_override) {
     size_t len = sz_override ? sz_override : mt->hash_sz;
     unsigned char * rt = calloc(len, sizeof *rt);
 
-    unsigned char *** tiers = materialize_tree(mt, sz_override);
+    unsigned char *** tiers = materialize_tree(mt, len);
 
     size_t n_tiers = log2(mt->leaf_count);
     memcpy(rt, tiers[n_tiers][0], len);
-    free_materialization(tiers, mt->leaf_count);
+    free_materialization(tiers, mt->leaf_count, len);
 
     return rt;
 }

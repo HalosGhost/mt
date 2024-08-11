@@ -19,12 +19,16 @@ main (signed argc, char * argv []) {
     struct textenc * prf_enc = NULL;
     char * prf_p = NULL;
     char * prf_path = NULL;
+    size_t prf_path_len = 0;
+    bool p_is_stdout = false;
 
     enum rt_encoding { as_hex, as_pem } encoding = as_hex;
     unsigned char * rt_hex = NULL;
+    size_t rt_hex_len = 0;
     struct textenc * rt_enc = NULL;
     char * rt_p = NULL;
-    char * rt_path = NULL;
+    size_t rt_path_len = 0;
+    bool r_is_stdout = false;
 
     signed oi = 0, c = 0;
     while ( (c = getopt_long(argc, argv, optstr, os, &oi)) != -1 ) {
@@ -54,18 +58,21 @@ main (signed argc, char * argv []) {
             case 'p':
                 if ( optarg ) {
                     prf_p = strdup(optarg);
+                    prf_path_len = strlen(prf_p);
                 } break;
 
             case 'r':
                 if ( optarg ) {
                     encoding = as_hex;
                     rt_p = strdup(optarg);
+                    rt_path_len = strlen(rt_p);
                 } break;
 
             case 'R':
                 if ( optarg ) {
                     encoding = as_pem;
                     rt_p = strdup(optarg);
+                    rt_path_len = strlen(rt_p);
                 } break;
 
             default:
@@ -112,8 +119,9 @@ main (signed argc, char * argv []) {
         rt = root_from_tree(mt, hash_len_override);
         size_t actual_sz = !hash_len_override ? mt->hash_sz : hash_len_override;
         rt_hex = to_hex(rt, actual_sz);
+        rt_hex_len = actual_sz * 2;
         rt_enc = encode_mr(rt, actual_sz);
-        bool r_is_stdout = rt_p && strlen(rt_p) == 1 && !strncmp(rt_p, "-", 1);
+        r_is_stdout = rt_p && strlen(rt_p) == 1 && !strncmp(rt_p, "-", 1);
         if ( r_is_stdout || no_prf_no_path ) {
             char * buf = NULL;
             size_t buf_sz = 0;
@@ -128,8 +136,8 @@ main (signed argc, char * argv []) {
             if ( written > 0 ) {
                 printf("%s", buf);
             }
-            rt_path = "-";
 
+            crypto_wipe(buf, buf_sz);
             free(buf);
         } else if ( rt_p ) {
             FILE * f = fopen(rt_p, "w");
@@ -137,7 +145,6 @@ main (signed argc, char * argv []) {
                 case as_hex: written = fprintf(f, "%s\n", rt_hex); break;
                 case as_pem: written = fw_txtenc(f, rt_enc); break;
             }
-            rt_path = rt_p;
             fclose(f);
         }
 
@@ -155,7 +162,7 @@ main (signed argc, char * argv []) {
 
         prf_enc = encode_mp(p);
 
-        bool p_is_stdout = prf_p && strlen(prf_p) == 1 && !strncmp(prf_p, "-", 1);
+        p_is_stdout = prf_p && strlen(prf_p) == 1 && !strncmp(prf_p, "-", 1);
         if ( p_is_stdout || !prf_p ) {
             char * buf = NULL;
             size_t buf_sz = 0;
@@ -169,6 +176,7 @@ main (signed argc, char * argv []) {
             }
             prf_path = "-";
 
+            crypto_wipe(buf, buf_sz);
             free(buf);
         } else if ( prf_p ) {
             FILE * f = fopen(prf_p, "w");
@@ -188,14 +196,25 @@ main (signed argc, char * argv []) {
     cleanup:
         if ( mt_enc ) { free_txtenc(mt_enc); }
         if ( prf_enc ) { free_txtenc(prf_enc); }
-        if ( rt_hex ) { free(rt_hex); }
+        if ( rt_hex ) { crypto_wipe(rt_hex, rt_hex_len); free(rt_hex); }
         if ( rt_enc ) { free_txtenc(rt_enc); }
+        if ( rt ) {
+            crypto_wipe(
+                rt,
+                hash_len_override ? hash_len_override : mt->hash_sz
+            );
+            free(rt);
+        }
         if ( mt ) { free_mt(mt); }
-        if ( rt ) { free(rt); }
         if ( p ) { free_proof(p); }
-        free(prf_p ? prf_p : prf_path);
-        if ( rt_p ) { free(rt_p); }
-        if ( !rt_p && !no_prf_no_path ) { free(rt_path); }
+        if ( !p_is_stdout && prf_p ) {
+            crypto_wipe(prf_p, prf_path_len);
+            free(prf_p);
+        }
+        if ( !r_is_stdout && rt_p ) {
+            crypto_wipe(rt_p, rt_path_len);
+            free(rt_p);
+        }
         return status;
 }
 
