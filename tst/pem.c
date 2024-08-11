@@ -33,7 +33,7 @@ main (void) {
         // L is 2, 4, 8, or 16
         size_t L = 0;
         while ( !L ) {
-            getrandom(&L, 1, 0);
+            randombytes(&L, 1);
             L &= ~((~0ULL) << 2);
             L = 2 << L;
         }
@@ -50,7 +50,7 @@ main (void) {
         enum proof_type t = of_knowledge;
         size_t N = 0;
         while ( !N ) {
-            getrandom(&N, 1, 0);
+            randombytes(&N, 1);
             size_t trimmed = N & ~((~0ULL) << 6);
             if ( trimmed ) {
                 if ( N & (1 << 6) ) {

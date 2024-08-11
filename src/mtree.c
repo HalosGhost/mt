@@ -38,7 +38,7 @@ create_mt (
                 mt->leaves[i].location = NULL;
                 mt->leaves[i].sz = 64;
                 mt->leaves[i].data = calloc(64, sizeof *mt->leaves[i].data);
-                getrandom(mt->leaves[i].data, 64, 0);
+                randombytes(mt->leaves[i].data, 64);
                 break;
         }
     }

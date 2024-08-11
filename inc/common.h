@@ -11,6 +11,7 @@
 #include <stdbool.h>
 
 #include <monocypher.h>
+#include <randombytes.h>
 
 #include <pem.h>
 #include <hex.h>

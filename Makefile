@@ -14,7 +14,7 @@ DEPDIR = dep
 CPPFLAGS = -I$(INCDIR)
 STD = gnu18
 CFLAGS := -Wall -Wextra -Wpedantic -std=$(STD)
-LINKFLAGS = -lm -lb64
+LINKFLAGS = -lm -lb64 -lrandombytes
 
 CONFIGURED_DEPS = monocypher
 
