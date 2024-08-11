@@ -81,9 +81,10 @@ main (signed argc, char * argv []) {
         rt = from_hex(rt_hex, p->hash_sz * 2);
     }
 
+    unsigned char * static_rt = p->elements[p->element_count - 1];
     if ( !rt ) {
         fputs("[WARNING]: No explicit root provided!\n", stderr);
-    } else if ( memcmp(rt, p->elements[p->element_count - 1], p->hash_sz) ) {
+    } else if ( const_cmp(rt, p->hash_sz, static_rt, p->hash_sz) ) {
         fputs("[ERROR]: Mismatched root!\n", stderr);
         status = 1;
         goto cleanup;
@@ -93,7 +94,10 @@ main (signed argc, char * argv []) {
         fputs("Proof verified!\n", stderr);
         if ( out_p ) {
             if ( p->t != of_inclusion ) {
-                fputs("[WARNING]: Cannot write message to file for knowlege-proofs\n", stderr);
+                fputs(
+                    "[WARNING]: Cannot recover message from knowlege-proofs\n",
+                    stderr
+                );
             } else if ( out_p_len == 1 && !strncmp(out_p, "-", 1) ) {
                 printf("%s", p->msg);
                 fputs("wrote file (-)\n", stderr);

@@ -93,6 +93,8 @@ is_valid_proof (struct mproof * mp) {
         memcpy(cptr, &height, 1);
         cptr++;
         unsigned char * ancestral_hash = height == 1 ? leaf_hash : intermed_hash;
+        // Note: we need ordering, complicating constant-time comparison
+        // It's not clear to me whether this is a side-channel vector
         if ( memcmp(ancestral_hash, mp->elements[i], mp->hash_sz) < 1 ) {
             memcpy(cptr, ancestral_hash, mp->hash_sz);
             cptr += mp->hash_sz;
@@ -107,7 +109,12 @@ is_valid_proof (struct mproof * mp) {
         free(intermed_preimage);
     }
 
-    bool valid = !memcmp(intermed_hash, mp->elements[mp->element_count - 1], mp->hash_sz);
+    bool valid = !const_cmp(
+        intermed_hash,
+        mp->hash_sz,
+        mp->elements[mp->element_count - 1],
+        mp->hash_sz
+    );
     crypto_wipe(intermed_hash, mp->hash_sz);
     free(intermed_hash);
 

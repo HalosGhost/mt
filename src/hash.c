@@ -18,3 +18,15 @@ get_hash (
     return bytes;
 }
 
+signed
+const_cmp (const unsigned char * a, size_t an, const unsigned char * b, size_t bn) {
+
+    if ( an != bn ) { return -1; }
+
+    unsigned char acc = 0;
+    for ( size_t i = 0; i < an; ++i ) {
+        acc |= a[i] ^ b[i];
+    }
+
+    return !!acc;
+}

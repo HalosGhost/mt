@@ -3,6 +3,7 @@
 
 #include <common.h>
 #include <pem.h>
+#include <hash.h>
 #include <codec.h>
 #include <mtree.h>
 #include <mproof.h>
@@ -78,13 +79,22 @@ main (void) {
             if ( !mt_passed ) { goto cleanup; }
             mt_passed &= mt->leaves[l].sz == mt_back->leaves[l].sz;
             if ( !mt_passed ) { goto cleanup; }
-            mt_passed &= !!mt->leaves[l].location == !!mt_back->leaves[l].location;
+            mt_passed &= !!mt->leaves[l].location
+                      == !!mt_back->leaves[l].location;
             if ( !mt_passed ) { goto cleanup; }
             if ( !!mt->leaves[l].location ) {
-                mt_passed &= !strcmp(mt->leaves[l].location, mt_back->leaves[l].location);
+                mt_passed &= !strcmp(
+                    mt->leaves[l].location,
+                    mt_back->leaves[l].location
+                );
                 if ( !mt_passed ) { goto cleanup; }
             }
-            mt_passed &= !memcmp(mt->leaves[l].data, mt_back->leaves[l].data, mt->leaves[l].sz);
+            mt_passed &= !const_cmp(
+                mt->leaves[l].data,
+                mt->leaves[l].sz,
+                mt_back->leaves[l].data,
+                mt_back->leaves[l].sz
+            );
             if ( !mt_passed ) { goto cleanup; }
         }
 
@@ -92,7 +102,7 @@ main (void) {
         if ( !(rt_enc = encode_mr(rt, N)) ) { goto cleanup; }
         size_t back_sz = 0;
         if ( !(rt_back = decode_mr(rt_enc, &back_sz)) ) { goto cleanup; }
-        if ( N != back_sz || memcmp(rt, rt_back, N) ) { goto cleanup; }
+        if ( const_cmp(rt, N, rt_back, back_sz) ) { goto cleanup; }
 
         mp = proof_from_tree(mt, 0, N, t);
         if ( !mp || mp->t != t || mp->hash_sz != N ) {
@@ -105,9 +115,15 @@ main (void) {
                       && mp->t == mp_back->t
                       && mp->msg_sz == mp_back->msg_sz
                       && mp->msg && mp_back->msg;
-        mp_passed &= !memcmp(mp->msg, mp_back->msg, mp->msg_sz);
+        mp_passed &= !const_cmp(
+            mp->msg, mp->msg_sz,
+            mp_back->msg, mp_back->msg_sz
+        );
         for ( size_t e = 0; e < mp->element_count && mp_passed; ++e ) {
-            mp_passed &= !memcmp(mp->elements[e], mp_back->elements[e], N);
+            mp_passed &= !const_cmp(
+                mp->elements[e], mp->hash_sz,
+                mp_back->elements[e], mp_back->hash_sz
+            );
         }
 
         ++passed;

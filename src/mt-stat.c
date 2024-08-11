@@ -59,7 +59,7 @@ main (signed argc, char * argv []) {
     // check integrity
     fprintf(stderr, "[%.8s] integrity", hx);
     unsigned char * rt = root_from_tree(mt, 0);
-    bool integ = !memcmp(stored_rt, rt, mt->hash_sz);
+    bool integ = !const_cmp(stored_rt, mt->hash_sz, rt, mt->hash_sz);
     fprintf(stderr, "\t [%s]\n", integ ? "PASS" : "FAIL");
 
     switch ( fmt ) {
