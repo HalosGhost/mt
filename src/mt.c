@@ -3,7 +3,9 @@
 signed
 main (signed argc, char * argv[], char * envp[]) {
 
-    if ( argc > 1 ) {
+    bool help = argc == 2 && !strncmp(argv[1], "help", 4);
+
+    if ( argc > 1 && !help ) {
         char * cmd = calloc(1, strlen(argv[0]) + sizeof "-" + strlen(argv[1]));
         sprintf(cmd, "%s-%s", argv[0], argv[1]);
 
@@ -31,7 +33,7 @@ main (signed argc, char * argv[], char * envp[]) {
         return EXIT_FAILURE;
     }
 
-    puts("Available commands:");
+    puts("Available commands:\n  help");
 
     struct dirent * f = NULL;
     dirname(bin_path);
@@ -42,7 +44,7 @@ main (signed argc, char * argv[], char * envp[]) {
 
     while ( (f = readdir(dir)) ) {
         if ( !strncmp("mt-", f->d_name, sizeof "mt-" - 1) ) {
-            printf("\t%s\n", f->d_name + sizeof "mt-" - 1);
+            printf("  %s\n", f->d_name + sizeof "mt-" - 1);
         }
     }
 

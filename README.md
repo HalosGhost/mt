@@ -9,4 +9,4 @@ You should *not* use this for anything serious.
 
 Use this only as a means of learning and education!
 
-Cf. [my rationale](doc/mt-rationale.7.scd).
+Cf. [my rationale](doc/mt-rationale.7.scd), and the [basic usage](doc/mt.1.scd).
