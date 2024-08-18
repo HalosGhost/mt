@@ -81,3 +81,6 @@ for leaf nodes). This limits the allowable depth of the tree to 255
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues
+
+# SEE ALSO
+*mt-rationale*(7), *mt*(1), *mt-stat*(1), *mt-prove*(1)

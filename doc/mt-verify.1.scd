@@ -8,7 +8,7 @@ mt-verify - Verify a Merkle Proof
 
 # DESCRIPTION
 *mt-verify* verifies a Merkle Proof for a given Merkle Root built using
-*mt-create(1)* and *mt-prove(1)*.
+*mt-create*(1) and *mt-prove*(1).
 
 Both detached (proofs of knowledge) and attached (proofs of inclusion)
 are supported. All proofs must include the associated root, enabling
@@ -41,3 +41,6 @@ a warning will be printed.
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues
+
+# SEE ALSO
+*mt-rationale*(7), *mt*(1), *mt-create*(1), *mt-prove*(1)

@@ -49,8 +49,9 @@ next power of two greater than the number of committed messages. All
 these additional messages are random data, each 64 bytes long. From
 the perspective of a commitment scheme, this means at most half of
 the messages in the tree are meaningful. And, where N is the number of
-committed messages, your anonymity set is strictly ≥2N, and therefore
-you have strictly ≥64N bytes of randomness present in the tree.
+committed messages, the anonymity set for each message is strictly ≥2N,
+and therefore you have strictly ≥64N bytes of randomness present in
+the tree.
 
 2. Additionally, every included message's sibling at the leaves of the
 tree is one of these uniformly random messages. From the perspective of a
@@ -58,7 +59,7 @@ signature scheme, this ensures that a message sign*able* by many different
 keys is not revealed to have been included by any other keys than those
 who publicly revealed signatures. This is a very subtle security property,
 but can be intuitively understood as every message's signature including
-a 64-byte blinding factor nonce. Even if a specific message is signable
+64-bytes of additional randomness. Even if a specific message is signable
 by many different keys, and those keys provided many signatures of other
 included messages, no signature ever leaks that a non-revealed message
 has been included in any other tree.
@@ -101,3 +102,6 @@ of quality).
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues
+
+# SEE ALSO
+*mt*(1)

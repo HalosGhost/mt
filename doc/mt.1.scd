@@ -35,3 +35,6 @@ $ mt verify -r new.root new.proof
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues
+
+# SEE ALSO
+*mt-rationale*(7), *mt-create*(1), *mt-stat*(1), *mt-prove*(1), *mt-verify*(1)

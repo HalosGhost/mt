@@ -20,9 +20,12 @@ mt-stat - Inspect properties of a Merkle Tree
 	respectively. If not specified, *list* is assumed.
 
 # EXAMPLES
-*mt-stat -cf list ./example.mt*
-	Verifies the integrity of *example.mt* in the current directory, and lists
-	its leaves.
+*mt-stat -f list ./example.mt*
+	Verifies the integrity of *example.mt* in the current directory,
+	and lists its leaves.
 
 # BUGS
 Report bugs for mt to https://github.com/HalosGhost/mt/issues
+
+# SEE ALSO
+*mt-rationale*(7), *mt*(1), *mt-create*(1)
