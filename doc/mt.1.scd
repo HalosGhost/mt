@@ -30,7 +30,7 @@ $ mt prove -r new.root -p new.proof -K0 new.mt
 ```
 
 ```
-$ mt verify -r new.root new.proof
+$ mt verify -r $(cat new.root) new.proof
 ```
 
 # BUGS

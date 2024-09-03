@@ -22,11 +22,11 @@ a warning will be printed.
 *-h, --help*
 	Print a short help message and exit.
 
-*-r, --root-hex*=_PATH_
-	Read the Merkle Root from the textual encoding at _PATH_.
-
-*-R, --root-pem*=_HEX_
+*-r, --root-hex*=_HEX_
 	Read the Merkle Root from the hexadecimal-encoded string, _HEX_.
+
+*-R, --root-pem*=_PATH_
+	Read the Merkle Root from the textual encoding at _PATH_.
 
 *-o, --out*=_PATH_
 	If the proof demonstrates inclusion, and verifies correctly,
